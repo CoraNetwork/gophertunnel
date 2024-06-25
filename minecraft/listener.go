@@ -12,7 +12,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/sandertv/go-raknet"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 	"github.com/sandertv/gophertunnel/minecraft/resource"
@@ -278,15 +277,6 @@ func (listener *Listener) createConn(n Network, netConn net.Conn) {
 	conn.authEnabled = !listener.cfg.AuthenticationDisabled
 	conn.disconnectOnUnknownPacket = !listener.cfg.AllowUnknownPackets
 	conn.disconnectOnInvalidPacket = !listener.cfg.AllowInvalidPackets
-
-	if netConn.(*raknet.Conn).ProtocolVersion() <= 10 {
-		conn.enc.EnableCompression(n.Compression(netConn), conn.proto.ID() <= 630)
-		if conn.proto.ID() <= 630 {
-			conn.dec.SetCompression(n.Compression(netConn))
-		} else {
-			conn.dec.EnableCompression()
-		}
-	}
 
 	if listener.playerCount.Load() == int32(listener.cfg.MaximumPlayers) && listener.cfg.MaximumPlayers != 0 {
 		// The server was full. We kick the player immediately and close the connection.
